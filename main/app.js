@@ -1,46 +1,25 @@
-var typeHome = ["https://zjy2.icve.com.cn", "https://mooc.icve.com.cn", "https://www.icve.com.cn"],
-    typeIndex = typeHome.indexOf(location.origin);
+var AI_ORIGIN = "https://ai.icve.com.cn";
+var ICVE_ORIGIN = "https://www.icve.com.cn";
+var CDN_BASE = "https://fastly.jsdelivr.net/gh/liuhuihou/auto-play-course-main@main/main/";
 
-if (typeIndex === -1) {
-    var t = Number(prompt("当前域名无法执行脚本，输入1跳转职教云，输入2跳转智慧职教，输入3跳转资源库，其他取消跳转"));
-
-    if (isNaN(t)) t = 0;
-
-    switch (t) {
-        case 1:
-        case 2:
-        case 3:
-            window.location.href = typeHome[t - 1];
-            break;
-    }
+if (location.origin === AI_ORIGIN || location.origin === ICVE_ORIGIN) {
+    loadScript(CDN_BASE + "ai_cont.js");
 } else {
-    loadJQuery(loadCoreScript);
+    var target = Number(prompt("当前页面不是新版智慧职教+。输入1跳转智慧职教+首页，输入2跳转AI学习中心，其他取消"));
+
+    if (target === 1) {
+        location.href = ICVE_ORIGIN + "/index";
+    } else if (target === 2) {
+        location.href = AI_ORIGIN + "/app/my-excellent-home";
+    }
 }
 
-function loadScript(src, onload) {
+function loadScript(src) {
     var script = document.createElement("script");
 
     script.src = src;
-    script.onload = onload;
     script.onerror = function () {
         alert("脚本加载失败：" + src);
     };
     (document.body || document.documentElement).appendChild(script);
-}
-
-function loadJQuery(onload) {
-    if (window.jQuery) {
-        window.$ = window.jQuery;
-        onload();
-        return;
-    }
-
-    loadScript("https://fastly.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js", function () {
-        window.$ = window.jQuery;
-        onload();
-    });
-}
-
-function loadCoreScript() {
-    loadScript("https://fastly.jsdelivr.net/gh/liuhuihou/auto-play-course-main@main/main/" + (typeIndex === 2 ? "special_" : "") + "cont.js");
 }
