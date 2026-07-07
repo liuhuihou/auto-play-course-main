@@ -141,7 +141,7 @@
             }
             requireLogin();
             log("正在读取课程列表...");
-            var data = await apiGet("/course/course/myCourseList", {
+            var data = await apiGet("/course/courseInfo/myCourse", {
                 queryStatus: state.queryStatus,
                 courseType: state.courseType,
                 pageNum: state.pageNum,
@@ -254,7 +254,7 @@
         }
 
         try {
-            var data = await apiGet("/course/course/myCourseList", {
+            var data = await apiGet("/course/courseInfo/myCourse", {
                 queryStatus: "1",
                 courseType: 1,
                 pageNum: 1,

@@ -129,7 +129,7 @@ Authorization: Bearer <token>
 课程列表来自新版接口：
 
 ```text
-GET https://ai.icve.com.cn/prod-api/course/course/myCourseList
+GET https://ai.icve.com.cn/prod-api/course/courseInfo/myCourse
 ```
 
 请求参数：
