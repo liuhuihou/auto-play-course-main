@@ -1219,7 +1219,7 @@
             </div>
             <div class="left-item">
                 <span>学号</span>
-                <span class="stuNum text-ellipsis">不能刷作业和考试!!!</span>
+                <span class="stuNum text-ellipsis">作业、测验、考试需手动完成</span>
             </div>
             <div class="left-item">
                 <div class="switch-platform btn">

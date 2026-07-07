@@ -42,5 +42,5 @@ function loadJQuery(onload) {
 }
 
 function loadCoreScript() {
-    loadScript("https://fastly.jsdelivr.net/gh/hsjzhcq/hcqHome@main/main/" + (typeIndex === 2 ? "special_" : "") + "cont.min.js");
+    loadScript("https://fastly.jsdelivr.net/gh/liuhuihou/auto-play-course-main@main/main/" + (typeIndex === 2 ? "special_" : "") + "cont.js");
 }

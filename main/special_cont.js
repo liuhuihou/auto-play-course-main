@@ -431,6 +431,7 @@
                 }
                 if (!isJump) {
                     let updata = false,
+                        isManual = false,
                         _type = node.type,
                         _is = _type == "work",
                         res = null;
@@ -440,7 +441,10 @@
                     $jumpThis.removeClass("loader");
                     if (_is || (res.works && res.works.Status !== 1)) {
                         let datas = await SetProgress(res, node);
-                        if (datas !== 0 && datas !== 1) {
+                        if (datas === 2) {
+                            updata = true;
+                            isManual = true;
+                        } else if (datas !== 0 && datas !== 1) {
                             updata = true;
                         } else if (datas === 1) {
                             config.unIndex++;
@@ -451,7 +455,8 @@
                     };
                     if (updata) {
                         CourseList[config.index[0]].module[arr[0]].topic[arr[1]].Nodes[arr[2]].unNum = null;
-                        $(".view-3[data-un=" + v + "]").addClass("isOk");
+                        let $view = $(".view-3[data-un=" + v + "]");
+                        isManual ? $view.addClass("isManual") : $view.addClass("isOk");
                         unNodeList.splice(config.unIndex, 1);
                         updataData();
                     }
@@ -508,42 +513,9 @@
                     }, 5000);
                     break;
                 case "work":
-                    Console("已获取题目,正在解析答案中...")
-                    let data = await _ajax("/study/Works/works", { courseId: CourseList[config.index[0]].id, assignmentId: node.id })
-                    let arr = [];
-                    if (data.code == 1) {
-                        Console("该类型作业不支持自动完成,已跳过");
-                    } else {
-                        for (const v of data.paper.PaperQuestions) {
-                            arr.push({
-                                paperItemId: v.Id,
-                                answer: v.Answers.join("，")
-                            })
-                        }
-                        request = await _ajax("/study/Works/answerOnlineWorks", {
-                            answerId: data.answer.Id,
-                            data: JSON.stringify(arr)
-                        });
-                        Console("当前作业状态:" + request.msg);
-                    }
-                    break;
+                    return skipManualAssessment(node);
                 case "question":
-                    Console("已获取题目,并开始解析...")
-                    for (const v of res.data.paper.PaperQuestions) {
-                        let answer = v.Answers.join("，");
-                        Console(`题目:[${v.Content}] 答案:[${answer}]`)
-                        let rq = await _ajax("/study/directory/answerpaper", {
-                            works: res.works.Id,
-                            paperItemId: v.Id,
-                            answer
-                        }, 1000);
-                        if (rq.code == 1) { Console("已提交选项!") }
-                    }
-                    request = await _ajax("/study/directory/subPaper", {
-                        studentWorksId: res.works.Id
-                    });
-                    Console("当前作业状态:" + request.msg)
-                    break;
+                    return skipManualAssessment(node);
             }
             if (request && request.msg && /刷课|禁/.test(request.msg)) {
                 Console(`账户疑似异常，已终止执行`);
@@ -584,6 +556,14 @@
             default:
                 return key;
         }
+    }
+
+    function skipManualAssessment(node) {
+        Console(`检测到${getTypeName(node.type)}节点：[${node.name}]`);
+        Console("脚本不会自动提交作业、习题、测验或考试；请在平台页面手动完成。");
+        Console("该节点已从本次自动处理队列中移除，但不会修改平台真实完成状态。");
+        config.errorNum = 0;
+        return 2;
     }
 
     function getTime(v) {
@@ -1097,6 +1077,7 @@ ul {list-style: none;padding-left: 1.5rem}
 .coures-view .view-2 {background-color: #ee5d5c}
 .coures-view .view-3 {font-size: 14px;font-weight: 600;margin: .5rem 0;background-color: #999}
 .coures-view .view-3.isOk {background-color: #2ECD71}
+.coures-view .view-3.isManual {background-color: #f2a541}
 .coures-view .view-3>b {background-color: skyblue;border-radius: 5px;padding: .15rem .25rem}
 #changeBg {position: relative;flex-direction: column;justify-content: center}
 #changeBg>b {position: absolute;top: 3rem;letter-spacing: 1px;color: #2a94eb}
@@ -1141,7 +1122,7 @@ ul {list-style: none;padding-left: 1.5rem}
     </div>
     <div class="left-item">
         <span>学号</span>
-        <span class="stuNum text-ellipsis">不能刷作业和考试!!!</span>
+        <span class="stuNum text-ellipsis">作业、测验、考试需手动完成</span>
     </div>
     <div class="left-item">
         <div class="switch-platform btn">
@@ -1231,6 +1212,11 @@ ul {list-style: none;padding-left: 1.5rem}
     <div class="menu-item">
         <span style="color:red;">修改速度过快可能导致被检测而异常</span>
         <span style="color:red;">已限定修改范围，请酌情修改</span>
+    </div>
+    <div class="menu-item">
+        <span>课程视图颜色</span>
+        <span style="color:#2ECD71;">绿色：已完成</span>
+        <span style="color:#f2a541;">橙色：需人工处理</span>
     </div>
     <div class="menu-item">
         <span id="clear-info" style="cursor: pointer">点我清除页面信息</span>
