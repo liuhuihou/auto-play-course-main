@@ -5,7 +5,7 @@ var CDN_BASE = "https://fastly.jsdelivr.net/gh/liuhuihou/auto-play-course-main@m
 if (location.origin === AI_ORIGIN || location.origin === ICVE_ORIGIN) {
     loadScript(CDN_BASE + "ai_cont.js");
 } else {
-    var target = Number(prompt("当前页面不是新版智慧职教+。输入1跳转智慧职教+首页，输入2跳转AI学习中心，其他取消"));
+    var target = Number(prompt("Unsupported page. Enter 1 for ICVE home, 2 for AI learning center, anything else to cancel."));
 
     if (target === 1) {
         location.href = ICVE_ORIGIN + "/index";
@@ -19,7 +19,7 @@ function loadScript(src) {
 
     script.src = src;
     script.onerror = function () {
-        alert("脚本加载失败：" + src);
+        alert("Script load failed: " + src);
     };
     (document.body || document.documentElement).appendChild(script);
 }
