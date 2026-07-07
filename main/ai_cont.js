@@ -141,7 +141,7 @@
             }
             requireLogin();
             log("正在读取课程列表...");
-            var data = await apiGet("/course/courseInfo/myCourse", {
+            var data = await getCourseList({
                 queryStatus: state.queryStatus,
                 courseType: state.courseType,
                 pageNum: state.pageNum,
@@ -254,7 +254,7 @@
         }
 
         try {
-            var data = await apiGet("/course/courseInfo/myCourse", {
+            var data = await getCourseList({
                 queryStatus: "1",
                 courseType: 1,
                 pageNum: 1,
@@ -279,6 +279,7 @@
 
     async function apiGet(path, params) {
         var url = API_BASE + path + "?" + new URLSearchParams(params || {}).toString();
+        log("GET " + path + " " + JSON.stringify(params || {}));
         var response = await fetch(url, {
             method: "GET",
             credentials: "include",
@@ -295,9 +296,38 @@
 
         var data = await response.json();
         if (data.code && Number(data.code) !== 200) {
-            throw new Error(data.msg || data.message || ("接口返回 code=" + data.code));
+            throw new Error((data.msg || data.message || "接口返回异常") + " [code=" + data.code + "]");
         }
         return data;
+    }
+
+    async function getCourseList(params) {
+        var attempts = [
+            params,
+            {
+                queryStatus: params.queryStatus,
+                pageNum: params.pageNum,
+                pageSize: params.pageSize
+            },
+            {
+                queryStatus: String(params.queryStatus),
+                courseType: String(params.courseType),
+                pageNum: String(params.pageNum),
+                pageSize: String(params.pageSize)
+            }
+        ];
+        var errors = [];
+
+        for (var i = 0; i < attempts.length; i++) {
+            try {
+                return await apiGet("/course/courseInfo/myCourse", attempts[i]);
+            } catch (error) {
+                errors.push(error.message);
+                log("课程接口尝试 " + (i + 1) + " 失败：" + error.message);
+            }
+        }
+
+        throw new Error(errors.join("；"));
     }
 
     function getCookie(name) {
